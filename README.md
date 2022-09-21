@@ -30,11 +30,10 @@ pub struct Command<'a> {
 ### The ClimbFunction Signature
 The `ClimbFunction` definition looks like this:
 ```rust
-pub type ClimbFunction = fn(CommandInput, CommandOptions) -> CommandResult;
 pub type CommandInput = Option<Vec<String>>;
 pub type CommandOptions = Option<Vec<CommandOption>>;
-pub struct CommandOption(pub String, pub Option<String>);
 pub type CommandResult = Result<Option<String>, String>;
+pub type ClimbFunction = fn(CommandInput, CommandOptions) -> CommandResult;
 ```
 The CommandInput, CommandOptions, and CommandResult types are the required types that every Climb function needs to use.
 
@@ -42,17 +41,17 @@ The CommandInput, CommandOptions, and CommandResult types are the required types
 The `CommandInput` type is populated with the non-optional inputs for the function. If a function takes 0 inputs, this will be `None`.
 
 ### The CommandOptions Type
-The `CommandOptions` type is populated with the options for the function. `CommandOption` is a tuple struct containing the `String` name of the function and an optional input value.
+The `CommandOptions` type is populated with the options for the function. `CommandOption` is a tuple struct containing the `String` name of the function and an optional `String` input value.
 
 ### The CommandResult Type
-All Climb commands return the `CommandResult` type. If a command wants to print its results to the console, then it returns a `Some(String)` type.
+All Climb commands return the `CommandResult` type. If a command wants to print its results to the console, it returns a `Ok(Some(String))`.
 
 ## Creating and Running an Application
 Here is an example application that acts as a simple calculator
 
 This is the math function that the calculator will use. You can see an example of how you can parse the options and arguments that are passed into the function.
 ```rust
-fn add(input: CommandInput, options: CommandOptions) -> CommandResult {
+fn math(input: CommandInput, options: CommandOptions) -> CommandResult {
     let input = input.unwrap();
 
     let a = input.get(0).unwrap().parse::<i32>().unwrap();
@@ -70,7 +69,7 @@ fn add(input: CommandInput, options: CommandOptions) -> CommandResult {
         }
     }
 
-    Ok(None)
+    Ok(Some(format!("Executed the math command")))
 }
 ```
 All Climb applications need a default function. This function is called when no command is input in the command line after calling the application. Since the calculator requires us to give a command, you can make an empty function:
