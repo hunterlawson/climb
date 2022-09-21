@@ -1,6 +1,6 @@
 # climb
 
-Climb is a simple Rust crate for creating CLI applications. Allows for functions to accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands.
+Climb is a simple Rust crate for creating CLI applications. Allows for functions to accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and function.
 
 - [climb](#climb)
   - [Commands](#commands)
@@ -75,7 +75,7 @@ fn add(input: CommandInput, options: CommandOptions) -> CommandResult {
 ```
 All Climb applications need a default function. This function is called when no command is input in the command line after calling the application. Since the calculator requires us to give a command, you can make an empty function:
 ```rust
-fn default(input: CommandInput, options: CommandOptions) -> CommandResult {
+fn default(_: CommandInput, _: CommandOptions) -> CommandResult {
     Ok(None)
 }
 ```
@@ -86,35 +86,30 @@ let default_command = Command {
     function: default,
     name: "Default",
     alias: "",
-    options: hashset![],
+    description: "",
+    options: vec![],
+    option_descriptions: vec![],
     num_inputs: 0,
+    input_names: vec![],
 };
 
 let add_command = Command {
     function: math,
     name: "math",
     alias: "math",
-    options: hashset!["a", "s", "m", "d"],
+    description: "Performs the calculations depending on the chosen option",
+    options: vec!["a", "s", "m", "d"],
+    option_descriptions: vec!["Add", "Subtract", "Multiply", "Divide"],
     num_inputs: 2,
+    input_names: vec!["a", "b"],
 };
 ```
 
-Now to create the application and add the functions:
+Now to create the application and add the functions. You can immediately return the value of the run function:
 ```rust
-let result = ClimbApp::new(default_command)?
+ClimbApp::new("Climb Calculator", default_command)?
     .add_command(add_command)?
-    .run(env::args().collect());
-```
-
-We store the result of the run function so that we can use it later. In this case, we will print it:
-```rust
-match result {
-    Ok(r) => match r {
-        Some(s) => println!("{}", s),
-        None => (),
-    },
-    Err(e) => println!("{}", e),
-}
+    .run(env::args().collect())
 ```
 
 Now the application works as intended:
