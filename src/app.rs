@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Add, option};
+use std::{collections::HashMap, ops::Add};
 
 use crate::command::*;
 
@@ -69,7 +69,7 @@ impl<'a> ClimbApp<'a> {
             return Err(format!(
                 "The number of options and number of option descriptions do not match for command {}",
                 command.name
-            ))
+            ));
         }
 
         // Add `--help` to the command options
@@ -228,7 +228,9 @@ impl<'a> ClimbApp<'a> {
                     if option_name.chars().last().unwrap() == '?' {
                         let mut option_name_new = option_name.chars();
                         option_name_new.next_back();
-                        option_help.push_str(format!("\t-{}", option_name_new.collect::<String>()).as_str());
+                        option_help.push_str(
+                            format!("\t-{}", option_name_new.collect::<String>()).as_str(),
+                        );
                         option_help.push_str(format!(" <INPUT>").as_str());
                     } else {
                         option_help.push_str(format!("\t-{}", option_name).as_str());
