@@ -3,8 +3,6 @@ use std::{
     ops::Add,
 };
 
-use maplit::hashmap;
-
 use crate::command::*;
 
 pub struct ClimbApp<'a> {
