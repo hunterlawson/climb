@@ -3,10 +3,10 @@ use std::collections::HashSet;
 pub type CommandInput = Option<Vec<String>>;
 pub type CommandOptions = Option<Vec<CommandOption>>;
 pub type CommandResult = Result<Option<String>, String>;
-pub type CommandFunction = fn(CommandInput, CommandOptions) -> CommandResult;
+pub type ClimbFunction = fn(CommandInput, CommandOptions) -> CommandResult;
 
 pub struct Command<'a> {
-    pub function: CommandFunction,
+    pub function: ClimbFunction,
     pub name: &'a str,
     pub alias: &'a str,
     pub options: HashSet<&'a str>,

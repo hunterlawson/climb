@@ -7,16 +7,16 @@ use maplit::hashmap;
 
 use crate::command::*;
 
-pub struct App<'a> {
+pub struct ClimbApp<'a> {
     command_table: HashMap<&'a str, Command<'a>>,
     default_command: Command<'a>,
 }
 
-impl<'a> App<'a> {
+impl<'a> ClimbApp<'a> {
     // Create a new application
-    pub fn new(default_command: Command<'a>) -> Result<App<'a>, String> {
-        App::validate_command(&default_command)?;
-        let app = App {
+    pub fn new(default_command: Command<'a>) -> Result<ClimbApp<'a>, String> {
+        ClimbApp::validate_command(&default_command)?;
+        let app = ClimbApp {
             command_table: HashMap::<&'a str, Command<'a>>::new(),
             default_command: default_command,
         };
@@ -25,8 +25,8 @@ impl<'a> App<'a> {
     }
 
     // Add a command to the application
-    pub fn add_command(&mut self, command: Command<'a>) -> Result<&App, String> {
-        App::validate_command(&command)?;
+    pub fn add_command(&mut self, command: Command<'a>) -> Result<&ClimbApp, String> {
+        ClimbApp::validate_command(&command)?;
 
         // Add the command to the command table
         self.command_table.insert(command.alias, command);
