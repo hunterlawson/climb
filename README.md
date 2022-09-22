@@ -17,8 +17,11 @@ pub struct Command<'a> {
     pub function: ClimbFunction,
     pub name: &'a str,
     pub alias: &'a str,
-    pub options: HashSet<&'a str>,
+    pub description: &'a str,
+    pub options: Vec<&'a str>,
+    pub option_descriptions: Vec<&'a str>,
     pub num_inputs: usize,
+    pub input_names: Vec<&'a str>,
 }
 ```
 `function`: A pointer to the function that follows the `ClimbFunction` signature. This is the function that is executed when the command is called.
@@ -30,10 +33,10 @@ pub struct Command<'a> {
 ### The ClimbFunction Signature
 The `ClimbFunction` definition looks like this:
 ```rust
+pub type ClimbFunction = fn(CommandInput, CommandOptions) -> CommandResult;
 pub type CommandInput = Option<Vec<String>>;
 pub type CommandOptions = Option<Vec<CommandOption>>;
 pub type CommandResult = Result<Option<String>, String>;
-pub type ClimbFunction = fn(CommandInput, CommandOptions) -> CommandResult;
 ```
 The CommandInput, CommandOptions, and CommandResult types are the required types that every Climb function needs to use.
 

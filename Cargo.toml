@@ -1,6 +1,6 @@
 [package]
 name = "climb"
-version = "1.0.21"
+version = "1.0.22"
 edition = "2021"
 description = "Crate for creating easy and simple command-line interfaces"
 readme = "README.md"
