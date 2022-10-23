@@ -17,7 +17,7 @@ pub type FunctionInput = Vec<String>;
 /// See [FunctionOption] for more information.
 pub type FunctionOptions = Vec<FunctionOption>;
 
-/// Renaming of type `Result<Option<String>, String>
+/// Renaming of type `Result<Option<String>, String>`
 ///
 /// This type is returned from all Climb commands.
 pub type FunctionResult = Result<Option<String>, String>;
