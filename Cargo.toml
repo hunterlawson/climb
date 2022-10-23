@@ -1,6 +1,6 @@
 [package]
 name = "climb"
-version = "1.0.22"
+version = "2.0.0"
 edition = "2021"
 description = "Crate for creating easy and simple command-line interfaces"
 readme = "README.md"
@@ -10,4 +10,4 @@ keywords = ["command", "line", "interface", "cli", "application"]
 categories = ["command-line-interface"]
 
 [dependencies]
-maplit = "1.0.2"
+colored = "2.0.0"
