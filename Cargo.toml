@@ -1,8 +1,8 @@
 [package]
 name = "climb"
-version = "2.0.0"
+version = "2.0.1"
 edition = "2021"
-description = "Crate for creating easy and simple command-line interfaces"
+description = "Crate for creating simple and easy command-line interfaces"
 readme = "README.md"
 repository = "https://github.com/hunterlawson/climb"
 license = "MIT OR Apache-2.0"

@@ -20,6 +20,8 @@ pub struct App {
 /// # Examples
 ///
 /// ```
+/// use climb::*;
+///
 /// let my_app = create_app!();
 /// ```
 /// `my_app` now stores an App struct with the values pulled from the environment.
@@ -70,6 +72,8 @@ impl App {
     /// Creating an app and change its name:
     ///
     /// ```
+    /// use climb::*;
+    ///
     /// let my_app = create_app!().name("new_name");
     /// ```
     pub fn name(mut self, name: &str) -> Self {
@@ -90,6 +94,8 @@ impl App {
     /// Creating an app and changing its description:
     ///
     /// ```
+    /// use climb::*;
+    ///
     /// let my_app = create_app!()
     ///     .desc("Super cool app that does a lot of stuff");
     /// ```
@@ -111,7 +117,9 @@ impl App {
     /// Creating an app and changing its version:
     ///
     /// ```
-    /// let my_app = create_app().version("1.0.4");
+    /// use climb::*;
+    ///
+    /// let my_app = create_app!().version("1.0.4");
     /// ```
     pub fn version(mut self, version: &str) -> Self {
         self.version = String::from(version);
@@ -135,17 +143,20 @@ impl App {
     /// Creating an application and adding a command to it:
     ///
     /// ```
+    /// use climb::*;
+    ///
     /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
     ///     println!("my example function");
+    ///     Ok(None)
     /// }
     ///
-    /// let my_command: Command::new(
+    /// let my_command = Command::new(
     ///     "cmd_name",
     ///     "cmd_desc",
     ///     example_cmd_fn
     /// );
     ///
-    /// let my_app: App = create_app!()
+    /// let my_app = create_app!()
     ///     .command(my_command);
     /// ```
     pub fn command(mut self, command: Command) -> Self {
@@ -168,9 +179,10 @@ impl App {
     /// Creating an app, changing some of its values, and running it:
     ///
     /// ```
-    /// let my_app = create_app!();
+    /// use climb::*;
     ///
-    /// my_app.version("1.2.3");
+    /// let my_app = create_app!()
+    /// .version("1.2.3");
     ///
     /// let app_result = my_app.run();
     /// ```
@@ -195,7 +207,7 @@ impl App {
         // If the first argument is an option, then we are not running a command
         // Check if the option is help or version
         let first_arg = args.get(1).unwrap();
-        if first_arg.starts_with("-") {
+        if first_arg.starts_with('-') {
             match first_arg.as_str() {
                 "-h" | "--help" => print_help_app(self, None),
                 "-v" | "--version" => print_version(self),
@@ -252,7 +264,7 @@ impl App {
         // Parse the arguments
         while let Some(arg) = it.next() {
             // `arg` is an option
-            if arg.chars().nth(0).unwrap() == '-' {
+            if arg.starts_with('-') {
                 // Check if the option is `-h` or `--help`
                 match arg.as_str() {
                     "-h" | "--help" => {
@@ -281,7 +293,7 @@ impl App {
                     };
 
                     // If the argument is another option, return error
-                    if next_arg.chars().nth(0).unwrap() == '-' {
+                    if next_arg.starts_with('-') {
                         return Err(format!(
                             "{} not provided for option: `{}`",
                             option_name, arg
@@ -334,5 +346,11 @@ impl App {
         }
 
         None
+    }
+}
+
+impl Default for App {
+    fn default() -> Self {
+        App::new()
     }
 }

@@ -1,45 +1,16 @@
 //! # Climb
 //!
 //! Climb is a simple Rust crate for creating CLI applications.
-//! Allows for functions to accept inputs, options, and optional inputs.
+//! Allows for creating commands that accept inputs, options, and optional inputs.
 //! Climb handles all input argument validation and parsing and guarantees
 //! that only the correct number of inputs and only valid options are passed
 //! into your functions. Climb will also generate help menus for your
 //! application and commands.
 //!
-//! ```
-//! fn main() {
-//!     let _ = create_app!()
-//!         .name("cool_calc")
-//!         .desc("This app does some cool math")
-//!         .version("1.0.0")
-//!         .command(
-//!             Command::new(
-//!                 "add",
-//!                 "Add two numbers",
-//!                 add_fn
-//!             )
-//!             .arg("number_a")
-//!             .arg("number_b")
-//!         )
-//!         .command(
-//!             Command::new(
-//!                 "div",
-//!                 "Divide two numbers",
-//!                 div_fn
-//!             )
-//!             .arg("number_a")
-//!             .arg("number_b")
-//!             .option(
-//!                 CommandOption::new(
-//!                     "round",
-//!                     "Round the result"
-//!                 )
-//!             )
-//!         )
-//!         .run();
-//!  }
-//! ```
+//! This is an example calculator application "`cool_calc`"" that was created with
+//! climb. For a walkthrough of how to create this example application, check out the
+//! README on the [Climb page on crates.io](https://crates.io/crates/climb).
+//!
 //! ```text
 //! $ cool_calc
 //!
@@ -59,9 +30,33 @@
 //! Run `cool_calc [COMMAND] --help` to see help information for a specific command
 //! ```
 //!
+//! ```text
+//! $ cool_calc add 10 20
 //!
-//! For a walkthrough of this example application, check out the README on the
-//! [Climb page on crates.io](https://crates.io/crates/climb).
+//! 30
+//! ```
+//!
+//! ```text
+//! $ cool_calc div --round 100 3
+//!
+//! 33
+//! ```
+//!
+//! ```text
+//! $ cool_calc div --help
+//!
+//! Divide two numbers
+//! USAGE:
+//!         cool_calc div [OPTIONS] <NUMBER_A> <NUMBER_B>
+//!
+//! ARGS:
+//!         <NUMBER_A>
+//!         <NUMBER_B>
+//!
+//! OPTIONS:
+//!         -h--help                     Print help information
+//!             --round                  Round the result
+//! ```
 
 mod app;
 mod command;

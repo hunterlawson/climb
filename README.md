@@ -1,6 +1,6 @@
 # climb
 
-Climb is a simple Rust crate for creating CLI applications. Allows for functions to accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and function.
+Climb is a simple Rust crate for creating CLI applications. Allows creating commands that accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and function.
 
 Climb follows the [builder pattern](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html) for creating applications.
 
@@ -47,7 +47,7 @@ calc_app = calc_app.desc("This app does some cool math");
 calc_app = calc_app.version("1.0.0");
 ```
 
-Or chain the commands:
+Or chain the commands to make everything easier to read:
 
 ```rust
 let _ = create_app!()
@@ -60,6 +60,8 @@ let _ = create_app!()
 If you run our code right now, this is what you get:
 
 ```
+$ cool_calc
+
 This app does some cool math
 
 USAGE:
@@ -112,7 +114,7 @@ let _ = create_app!()
     .run();
 ```
 
-The `Command::new` function takes in the command name and description as arguments. It also takes in a function that will be called when the command is executed. We haven't creaated definitions for these functions yet; the next section describes how to create these functions.
+The `Command::new` function takes in the command name and description as arguments. It also takes in a function that will be called when the command is executed. We haven't created definitions for these functions yet; the next section describes how to create these functions.
 
 We're also using the `Command` API to add arguments and options to the commands. We've added two arguments to each command `number_a` and `number_b`. These will be the two numbers that the functions will operate on. We also added an option to the `div` command: `round`. If this option is added, the command should return a rounded result.
 
@@ -139,11 +141,11 @@ It might look intimidating, but it's actually pretty simple. `FunctionInput` sto
 Let's start with making the function for the `add` command. Climb functions are guaranteed to have the correct number of arguments passed into them, so you can safely assume that there are the 2 arguments passed in. If you added any options to your command, only these valid options can ever be passed into your functions:
 
 ```rust
-fn add_fn(input: FunctionInput, options: FunctionOptions) -> FunctionResult {
-    let numA: i32 = input.get(0).unwrap().parse().unwrap();
-    let numB: i32 = input.get(1).unwrap().parse().unwrap();
+fn add_fn(input: FunctionInput, _: FunctionOptions) -> FunctionResult {
+    let num_a: i32 = input.get(0).unwrap().parse().unwrap();
+    let num_b: i32 = input.get(1).unwrap().parse().unwrap();
 
-    let result = numA + numB;
+    let result = num_a + num_b;
 
     println!("{}", result);
 
@@ -157,10 +159,10 @@ For the `div` function:
 
 ```rust
 fn div_fn(input: FunctionInput, options: FunctionOptions) -> FunctionResult {
-    let numA: f32 = input.get(0).unwrap().parse().unwrap();
-    let numB: f32 = input.get(1).unwrap().parse().unwrap();
+    let num_a: f32 = input.get(0).unwrap().parse().unwrap();
+    let num_b: f32 = input.get(1).unwrap().parse().unwrap();
 
-    let mut result = numA / numB;
+    let mut result = num_a / num_b;
 
     if options.contains(&FunctionOption(String::from("--round"), None)) {
         result = result.round();
@@ -179,6 +181,8 @@ Just like before, we can unwrap the first two inputs. The division result is sto
 If you run the application now with no arguments, this is what you get:
 
 ```
+$ cool_calc
+
 This app does some cool math
 
 USAGE:
@@ -198,6 +202,8 @@ Run `cool_calc [COMMAND] --help` to see help information for a specific command
 The two commands are listed there: `add` and `div`. You can try running the command: `div --help` to see a help menu for just the `div` command:
 
 ```
+$ cool_calc div --help
+
 Divide two numbers
 
 USAGE:
