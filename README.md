@@ -2,122 +2,232 @@
 
 Climb is a simple Rust crate for creating CLI applications. Allows for functions to accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and function.
 
+Climb follows the [builder pattern](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html) for creating applications.
+
 - [climb](#climb)
-  - [Commands](#commands)
-    - [The ClimbFunction Signature](#the-climbfunction-signature)
-    - [The CommandInput Type](#the-commandinput-type)
-    - [The CommandOptions Type](#the-commandoptions-type)
-    - [The CommandResult Type](#the-commandresult-type)
-  - [Creating and Running an Application](#creating-and-running-an-application)
-  
-## Commands
-Climb commands follow this signature:
+- [Example Application - Calculator](#example-application---calculator)
+  - [Creating the application](#creating-the-application)
+  - [Adding functionality with commands](#adding-functionality-with-commands)
+  - [Creating and using functions in climb commands](#creating-and-using-functions-in-climb-commands)
+  - [Using the application](#using-the-application)
+
+# Example Application - Calculator
+
+## Creating the application
+
+Let's say you want to make a simple calculator application with two functions:
+
+* `add` - Takes in two numbers, adds them, and returns the result
+* `div` - Takes in two numbers, divides them, and returns the result
+
+In your `main.rs` file, first create a basic Climb application with the `create_app` macro:
+
 ```rust
-pub struct Command<'a> {
-    pub function: ClimbFunction,
-    pub name: &'a str,
-    pub alias: &'a str,
-    pub description: &'a str,
-    pub options: Vec<&'a str>,
-    pub option_descriptions: Vec<&'a str>,
-    pub num_inputs: usize,
-    pub input_names: Vec<&'a str>,
+use climb::*;
+
+fn main() {
+    let calc_app = create_app!();
+
+    let _ = calc_app.run();
 }
 ```
-`function`: A pointer to the function that follows the `ClimbFunction` signature. This is the function that is executed when the command is called.
-`name`: The name of the function  
-`alias`: The alias used to call the command in the command line  
-`options`: A `HashSet` of options that the command can take. Each option is indicated by a string slice of its name. Appending a '?' at the end of an option indicates that it accepts an input. 
-`num_inputs`: The number of required inputs to the command
 
-### The ClimbFunction Signature
-The `ClimbFunction` definition looks like this:
+Call the `run` function to run your application with the command line arguments. Don't
+worry about the return value of this for now.
+The `create_app` macro will create a default application with its name, description,
+and version pulled from your crate's cargo.toml file.
+
+If you wanted to change these values you can:
+
 ```rust
-pub type ClimbFunction = fn(CommandInput, CommandOptions) -> CommandResult;
-pub type CommandInput = Option<Vec<String>>;
-pub type CommandOptions = Option<Vec<CommandOption>>;
-pub type CommandResult = Result<Option<String>, String>;
+let mut calc_app = create_app!();
+
+calc_app = calc_app.name("cool_calc");
+calc_app = calc_app.desc("This app does some cool math");
+calc_app = calc_app.version("1.0.0");
 ```
-The CommandInput, CommandOptions, and CommandResult types are the required types that every Climb function needs to use.
 
-### The CommandInput Type
-The `CommandInput` type is populated with the non-optional inputs for the function. If a function takes 0 inputs, this will be `None`.
+Or chain the commands:
 
-### The CommandOptions Type
-The `CommandOptions` type is populated with the options for the function. `CommandOption` is a tuple struct containing the `String` name of the function and an optional `String` input value.
-
-### The CommandResult Type
-All Climb commands return the `CommandResult` type. If a command wants to print its results to the console, it returns a `Ok(Some(String))`.
-
-## Creating and Running an Application
-Here is an example application that acts as a simple calculator
-
-This is the math function that the calculator will use. You can see an example of how you can parse the options and arguments that are passed into the function.
 ```rust
-fn math(input: CommandInput, options: CommandOptions) -> CommandResult {
-    let input = input.unwrap();
-
-    let a = input.get(0).unwrap().parse::<i32>().unwrap();
-    let b = input.get(1).unwrap().parse::<i32>().unwrap();
-
-    if let Some(options_vec) = options {
-        for option in options_vec {
-            match option.0.as_str() {
-                "a" => return Ok(Some(format!("{a} + {b} = {}", a + b))),
-                "s" => return Ok(Some(format!("{a} - {b} = {}", a - b))),
-                "m" => return Ok(Some(format!("{a} * {b} = {}", a * b))),
-                "d" => return Ok(Some(format!("{a} / {b} = {}", a / b))),
-                _ => (),
-            }
-        }
-    }
-
-    Ok(Some(format!("Executed the math command")))
-}
+let _ = create_app!()
+    .name("cool_calc")
+    .desc("This app does some cool math")
+    .version("1.0.0")
+    .run();
 ```
-All Climb applications need a default function. This function is called when no command is input in the command line after calling the application. Since the calculator requires us to give a command, you can make an empty function:
+
+If you run our code right now, this is what you get:
+
+```
+This app does some cool math
+
+USAGE:
+        cool_calc [OPTIONS] [COMMAND]
+
+OPTIONS:
+        -h, --help                   Print help information
+        -v, --version                Print version
+
+COMMANDS:
+
+Run `cool_calc [COMMAND] --help` to see help information for a specific command
+```
+
+Climb created the application and added a few default options: `help` and `version`. To add more functionality to the application, you need to make use of Climb commands.
+
+## Adding functionality with commands
+
+To add the two commands to the function, you can use the `app::command` API. When you call the `app::command` function, you have to pass in a command struct. You can use `Command::new`:
+
 ```rust
-fn default(_: CommandInput, _: CommandOptions) -> CommandResult {
+let _ = create_app!()
+    .name("cool_calc")
+    .desc("This app does some cool math")
+    .version("1.0.0")
+    .command(
+        Command::new(
+            "add",
+            "Add two numbers",
+            add_fn
+        )
+        .arg("number_a")
+        .arg("number_b")
+    )
+    .command(
+        Command::new(
+            "div",
+            "Divide two numbers",
+            div_fn
+        )
+        .arg("number_a")
+        .arg("number_b")
+        .option(
+            CommandOption::new(
+                "round",
+                "Round the result"
+            )
+        )
+    )
+    .run();
+```
+
+The `Command::new` function takes in the command name and description as arguments. It also takes in a function that will be called when the command is executed. We haven't creaated definitions for these functions yet; the next section describes how to create these functions.
+
+We're also using the `Command` API to add arguments and options to the commands. We've added two arguments to each command `number_a` and `number_b`. These will be the two numbers that the functions will operate on. We also added an option to the `div` command: `round`. If this option is added, the command should return a rounded result.
+
+## Creating and using functions in climb commands
+
+To add the `add` and `div` commands to the calculator application, you need to make the functions that these commands will actually execute. It's inside these functions that you can put the logic of the command.
+
+Climb functions follow the `CommandFunction` signature. It looks like this:
+
+```rust
+type CommandFunction = fn(FunctionInput, FunctionOptions) -> FunctionResult;
+```
+
+The arguments and return type are defined as:
+
+```rust
+type FunctionInput = Vec<String>;
+type FunctionOptions = Vec<FunctionOption>;
+type FunctionResult = Result<Option<String>, String>;
+```
+
+It might look intimidating, but it's actually pretty simple. `FunctionInput` stores the input to our function (these are called arguments), `FunctionOptions` stores any options that our command takes. Options can also have arguments. `FunctionResult` is the standard result type that all Climb commands must return. The results of running your functions are always returned from the `App::run()` command that was used earlier.
+
+Let's start with making the function for the `add` command. Climb functions are guaranteed to have the correct number of arguments passed into them, so you can safely assume that there are the 2 arguments passed in. If you added any options to your command, only these valid options can ever be passed into your functions:
+
+```rust
+fn add_fn(input: FunctionInput, options: FunctionOptions) -> FunctionResult {
+    let numA: i32 = input.get(0).unwrap().parse().unwrap();
+    let numB: i32 = input.get(1).unwrap().parse().unwrap();
+
+    let result = numA + numB;
+
+    println!("{}", result);
+
     Ok(None)
 }
 ```
 
-In the main function, we need to now create two `ClimbFunction` structs to represent our functions. These will be passed into the `ClimbApp` struct.
+We first unwrap the two inputs and convert them to integers. Then add them and print the result. You could return the result from the function wrapped as `Ok(Some(<result>))`, but instead we're just gonna return `Ok(None)` and just print the result from inside the function.
+
+For the `div` function: 
+
 ```rust
-let default_command = Command {
-    function: default,
-    name: "Default",
-    alias: "",
-    description: "",
-    options: vec![],
-    option_descriptions: vec![],
-    num_inputs: 0,
-    input_names: vec![],
-};
+fn div_fn(input: FunctionInput, options: FunctionOptions) -> FunctionResult {
+    let numA: f32 = input.get(0).unwrap().parse().unwrap();
+    let numB: f32 = input.get(1).unwrap().parse().unwrap();
 
-let add_command = Command {
-    function: math,
-    name: "math",
-    alias: "math",
-    description: "Performs the calculations depending on the chosen option",
-    options: vec!["a", "s", "m", "d"],
-    option_descriptions: vec!["Add", "Subtract", "Multiply", "Divide"],
-    num_inputs: 2,
-    input_names: vec!["a", "b"],
-};
+    let mut result = numA / numB;
+
+    if options.contains(&FunctionOption(String::from("--round"), None)) {
+        result = result.round();
+    }
+
+    println!("{}", result);
+
+    Ok(None)
+}
 ```
 
-Now to create the application and add the functions. You can immediately return the value of the run function:
-```rust
-ClimbApp::new("Climb Calculator", default_command)?
-    .add_command(add_command)?
-    .run(env::args().collect())
+Just like before, we can unwrap the first two inputs. The division result is stored in the `result` variable and is printed to the console. We also check if the `--round` option is passed into the function and round the result if it is. There are many ways of doing this, but this is just one example.
+
+## Using the application
+
+If you run the application now with no arguments, this is what you get:
+
+```
+This app does some cool math
+
+USAGE:
+        cool_calc [OPTIONS] [COMMAND]
+
+OPTIONS:
+        -h, --help                   Print help information
+        -v, --version                Print version
+
+COMMANDS:
+        add        Add two numbers
+        div        Divide two numbers
+
+Run `cool_calc [COMMAND] --help` to see help information for a specific command
 ```
 
-Now the application works as intended:
+The two commands are listed there: `add` and `div`. You can try running the command: `div --help` to see a help menu for just the `div` command:
+
 ```
-climb-test-app math -a 4 6
-4 + 6 = 10
-climb-test-app math -s 2022 10
-2022 - 10 = 2012
+Divide two numbers
+
+USAGE:
+        cool_calc div [OPTIONS] <NUMBER_A> <NUMBER_B>
+
+ARGS:
+        <NUMBER_A>
+        <NUMBER_B>
+
+OPTIONS:
+        -h, --help                   Print help information
+            --round                  Round the result
+```
+
+Finally, we can run the commands to test that they work:
+
+```
+$ cool_calc add 45 22
+
+67
+```
+
+```
+$ cool_calc div 45 22
+
+2.0454545
+```
+
+```
+$ cool_calc div --round 45 22
+
+2
 ```

@@ -4,6 +4,7 @@ use crate::command::{Command, CommandOption};
 use crate::help::*;
 use crate::types::*;
 
+/// Holds the information about the application: commands, options, name, version, etc.
 pub struct App {
     pub(crate) name: String,
     pub(crate) description: String,
@@ -12,22 +13,34 @@ pub struct App {
     pub(crate) options: Vec<CommandOption>,
 }
 
-// Macro to create an app and initialize it with the current crate information:
-// name, description, version
+/// Macro to create an app and initialize it with the current crate name, description, and version.
+///
+/// These are all pulled from the environment variables. If they can't be found, placeholders will be used instead.
+///
+/// # Examples
+///
+/// ```
+/// let my_app = create_app!();
+/// ```
+/// `my_app` now stores an App struct with the values pulled from the environment.
+/// If your crate was named `cool`, the application name is `cool`, etc.
 #[macro_export]
 macro_rules! create_app {
     () => {
         App::new()
             .name(option_env!("CARGO_PKG_NAME").unwrap_or("unnamed_app"))
-            .description(option_env!("CARGO_PKG_DESCRIPTION").unwrap_or("default_description"))
+            .desc(option_env!("CARGO_PKG_DESCRIPTION").unwrap_or("default_description"))
             .version(option_env!("CARGO_PKG_VERSION").unwrap_or("0.0.0"))
     };
 }
 
 impl App {
-    // App constructor
-    // Use the create_app! macro instead to construct and return an app with values for the
-    // name, description, and version taken from the crate's Cargo.toml file
+    /// Constructs and returns a default App.
+    ///
+    /// Initializes the name, description, and version with empty strings.
+    ///
+    /// Use the [create_app] macro instead if you want to construct and return an app with values for the
+    /// name, description, and version taken from the crate's Cargo.toml file.
     pub fn new() -> Self {
         // Implicit functions: help, version
         let options = vec![
@@ -44,38 +57,134 @@ impl App {
         }
     }
 
-    // Set the name of the app
+    /// Set the name of the application.
+    ///
+    /// The name is displayed whenever the application help menu is displayed.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - A string slice that holds the name of the application
+    ///
+    /// # Examples
+    ///
+    /// Creating an app and change its name:
+    /// 
+    /// ```
+    /// let my_app = create_app!().name("new_name");
+    /// ```
     pub fn name(mut self, name: &str) -> Self {
         self.name = String::from(name);
         self
     }
 
-    // Set the description of the app
-    pub fn description(mut self, desc: &str) -> Self {
+    /// Set the description of the application.
+    ///
+    /// The description is displayed whenever the application help menu is displayed.
+    ///
+    /// # Arguments
+    ///
+    /// * 'desc' - A string slice that holds the description of the application
+    ///
+    /// # Examples
+    ///
+    /// Creating an app and changing its description:
+    /// 
+    /// ```
+    /// let my_app = create_app!()
+    ///     .desc("Super cool app that does a lot of stuff");
+    /// ```
+    pub fn desc(mut self, desc: &str) -> Self {
         self.description = String::from(desc);
         self
     }
 
-    // Set the version of the app
+    /// Set the version of the application.
+    ///
+    /// The version is displayed whenever the `--version` option is passed.
+    ///
+    /// # Arguments
+    ///
+    /// * `desc` - A string slice that holds the version of the application
+    ///
+    /// # Examples
+    ///
+    /// Creating an app and changing its version:
+    /// 
+    /// ```
+    /// let my_app = create_app().version("1.0.4");
+    /// ```
     pub fn version(mut self, version: &str) -> Self {
         self.version = String::from(version);
         self
     }
 
-    // Add a command to the app
+    /// Add a command to the application
+    ///
+    /// Commands give functionality to your application. They are displayed
+    /// in the application help menu. You can add as many commands as you want
+    /// to an application.
+    ///
+    /// For more information on commands, see [Command]
+    ///
+    /// # Arguments
+    ///
+    /// * `command` - A command struct to add to the application
+    ///
+    /// # Examples
+    ///
+    /// Creating an application and adding a command to it:
+    /// 
+    /// ```
+    /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
+    ///     println!("my example function");
+    /// }
+    ///
+    /// let my_command: Command::new(
+    ///     "cmd_name",
+    ///     "cmd_desc",
+    ///     example_cmd_fn
+    /// );
+    ///
+    /// let my_app: App = create_app!()
+    ///     .command(my_command);
+    /// ```
     pub fn command(mut self, command: Command) -> Self {
         self.commands.push(command);
         self
     }
 
-    // Collects arguments from the command line, parses them, and runs the correct function
-    // If any errors occur unrelated to the function, this function prints the help menu and the error
-    // Otherwise, this function returns the result of the executed command
+    /// Runs the application with command line arguments
+    ///
+    /// Collects the arguments from the command line, parses them, and passes them into
+    /// the correct function. The arguments passed into the function are guaranteed to be
+    /// correct and valid.
+    ///
+    /// The result of running the command is returned by this function. If any errors
+    /// occur when parsing the command line input (command not found, wrong option name, etc.),
+    /// then this function will print a help menu and return `Ok(None)`.
+    /// 
+    /// # Examples
+    /// 
+    /// Creating an app, changing some of its values, and running it:
+    /// 
+    /// ```
+    /// let my_app = create_app!();
+    /// 
+    /// my_app.version("1.2.3");
+    /// 
+    /// let app_result = my_app.run();
+    /// ```
     pub fn run(&self) -> Result<Option<String>, String> {
         self.run_custom(env::args().collect())
     }
 
-    // Same as `run`, but supports input of custom arguments
+    /// Runs the application with custom arguments.
+    /// 
+    /// Behaves exactly the same as [run](`App::run()`), but allows for inputting
+    /// custom arguments instead of gathering them from the command line.
+    /// 
+    /// # Arguments
+    /// * `args` - A vector of strings representing the arguments to be parsed
     pub fn run_custom(&self, args: Vec<String>) -> Result<Option<String>, String> {
         // Print help if there are no arguments
         if args.len() <= 1 {
@@ -127,6 +236,7 @@ impl App {
         function(input, options)
     }
 
+    // Used internally by the run function to parse the arguments
     fn parse_args(
         &self,
         command: &Command,
@@ -192,7 +302,7 @@ impl App {
             }
         }
 
-        if inputs.len() != command.arguments.len() {
+        if inputs.len() != command.args.len() {
             return Err(format!(
                 "Incorrect amount of arguments provided for command: {}",
                 &command.alias_long
@@ -208,6 +318,8 @@ impl App {
         Ok(Some((inputs, options)))
     }
 
+    // Used internally by the run function to return the corresponding command
+    // given its short or long alias
     fn lookup_command(&self, alias: &String) -> Option<&Command> {
         for command in &self.commands {
             let equals_alias_short = if let Some(alias_short) = &command.alias_short {

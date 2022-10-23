@@ -1,4 +1,7 @@
-use crate::{command::{CommandOption, Command}, App};
+use crate::{
+    command::{Command, CommandOption},
+    App,
+};
 
 use colored::*;
 
@@ -19,7 +22,10 @@ pub(crate) fn print_help_app(app: &App, error_msg: Option<String>) {
         println!("{}", format_command_str(command));
     }
 
-    println!("\nRun `{} [COMMAND] --help` to see help information for a specific command", app.name);
+    println!(
+        "\nRun `{} [COMMAND] --help` to see help information for a specific command",
+        app.name
+    );
 
     // If there was an error, print the message at the bottom of the help screen
     if let Some(msg) = error_msg {
@@ -28,13 +34,13 @@ pub(crate) fn print_help_app(app: &App, error_msg: Option<String>) {
 }
 
 pub(crate) fn print_help_command(app: &App, command: &Command, error_msg: Option<String>) {
-    println!("{}\n", command.description);
+    println!("{}\n", command.desc);
 
     println!("USAGE:\n{}\n", format_command_usage_str(app, command));
 
-    if !command.arguments.is_empty() {
+    if !command.args.is_empty() {
         println!("ARGS:");
-        for arg in &command.arguments {
+        for arg in &command.args {
             println!("\t<{}>", arg);
         }
         println!();
@@ -62,7 +68,7 @@ fn format_command_usage_str(app: &App, command: &Command) -> String {
         command_str.push_str(" [OPTIONS]");
     }
 
-    for arg_name in &command.arguments {
+    for arg_name in &command.args {
         command_str.push_str(format!(" <{}>", arg_name).as_str());
     }
 
@@ -97,7 +103,7 @@ fn format_command_str(command: &Command) -> String {
         command_str.push_str(format!(", {}", alias_short).as_str());
     }
 
-    command_str = format!("{:<12}{}", command_str, &command.description);
+    command_str = format!("{:<12}{}", command_str, &command.desc);
     command_str
 }
 
