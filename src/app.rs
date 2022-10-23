@@ -195,7 +195,7 @@ impl App {
         // If the first argument is an option, then we are not running a command
         // Check if the option is help or version
         let first_arg = args.get(1).unwrap();
-        if first_arg.starts_with("-") {
+        if first_arg.starts_with('-') {
             match first_arg.as_str() {
                 "-h" | "--help" => print_help_app(self, None),
                 "-v" | "--version" => print_version(self),
@@ -252,7 +252,7 @@ impl App {
         // Parse the arguments
         while let Some(arg) = it.next() {
             // `arg` is an option
-            if arg.chars().nth(0).unwrap() == '-' {
+            if arg.starts_with('-') {
                 // Check if the option is `-h` or `--help`
                 match arg.as_str() {
                     "-h" | "--help" => {
@@ -281,7 +281,7 @@ impl App {
                     };
 
                     // If the argument is another option, return error
-                    if next_arg.chars().nth(0).unwrap() == '-' {
+                    if next_arg.starts_with('-') {
                         return Err(format!(
                             "{} not provided for option: `{}`",
                             option_name, arg
@@ -334,5 +334,11 @@ impl App {
         }
 
         None
+    }
+}
+
+impl Default for App {
+    fn default() -> Self {
+        App::new()
     }
 }

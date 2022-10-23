@@ -8,37 +8,35 @@
 //! application and commands.
 //!
 //! ```
-//! fn main() {
-//!     let _ = create_app!()
-//!         .name("cool_calc")
-//!         .desc("This app does some cool math")
-//!         .version("1.0.0")
-//!         .command(
-//!             Command::new(
-//!                 "add",
-//!                 "Add two numbers",
-//!                 add_fn
-//!             )
-//!             .arg("number_a")
-//!             .arg("number_b")
+//! let _ = create_app!()
+//!     .name("cool_calc")
+//!     .desc("This app does some cool math")
+//!     .version("1.0.0")
+//!     .command(
+//!         Command::new(
+//!             "add",
+//!             "Add two numbers",
+//!             add_fn
 //!         )
-//!         .command(
-//!             Command::new(
-//!                 "div",
-//!                 "Divide two numbers",
-//!                 div_fn
-//!             )
-//!             .arg("number_a")
-//!             .arg("number_b")
-//!             .option(
-//!                 CommandOption::new(
-//!                     "round",
-//!                     "Round the result"
-//!                 )
+//!         .arg("number_a")
+//!         .arg("number_b")
+//!     )
+//!     .command(
+//!         Command::new(
+//!             "div",
+//!             "Divide two numbers",
+//!             div_fn
+//!         )
+//!         .arg("number_a")
+//!         .arg("number_b")
+//!         .option(
+//!             CommandOption::new(
+//!                 "round",
+//!                 "Round the result"
 //!             )
 //!         )
-//!         .run();
-//!  }
+//!     )
+//!     .run();
 //! ```
 //! ```text
 //! $ cool_calc

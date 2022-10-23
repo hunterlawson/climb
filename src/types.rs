@@ -36,5 +36,5 @@ pub type CommandFunction = fn(FunctionInput, FunctionOptions) -> FunctionResult;
 ///
 /// If an option takes an input, it is stored in
 /// the second variable as Some(input), otherwise it is None
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub struct FunctionOption(pub String, pub Option<String>);
