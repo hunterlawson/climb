@@ -68,7 +68,7 @@ impl App {
     /// # Examples
     ///
     /// Creating an app and change its name:
-    /// 
+    ///
     /// ```
     /// let my_app = create_app!().name("new_name");
     /// ```
@@ -88,7 +88,7 @@ impl App {
     /// # Examples
     ///
     /// Creating an app and changing its description:
-    /// 
+    ///
     /// ```
     /// let my_app = create_app!()
     ///     .desc("Super cool app that does a lot of stuff");
@@ -109,7 +109,7 @@ impl App {
     /// # Examples
     ///
     /// Creating an app and changing its version:
-    /// 
+    ///
     /// ```
     /// let my_app = create_app().version("1.0.4");
     /// ```
@@ -133,7 +133,7 @@ impl App {
     /// # Examples
     ///
     /// Creating an application and adding a command to it:
-    /// 
+    ///
     /// ```
     /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
     ///     println!("my example function");
@@ -162,16 +162,16 @@ impl App {
     /// The result of running the command is returned by this function. If any errors
     /// occur when parsing the command line input (command not found, wrong option name, etc.),
     /// then this function will print a help menu and return `Ok(None)`.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// Creating an app, changing some of its values, and running it:
-    /// 
+    ///
     /// ```
     /// let my_app = create_app!();
-    /// 
+    ///
     /// my_app.version("1.2.3");
-    /// 
+    ///
     /// let app_result = my_app.run();
     /// ```
     pub fn run(&self) -> Result<Option<String>, String> {
@@ -179,10 +179,10 @@ impl App {
     }
 
     /// Runs the application with custom arguments.
-    /// 
+    ///
     /// Behaves exactly the same as [run](`App::run()`), but allows for inputting
     /// custom arguments instead of gathering them from the command line.
-    /// 
+    ///
     /// # Arguments
     /// * `args` - A vector of strings representing the arguments to be parsed
     pub fn run_custom(&self, args: Vec<String>) -> Result<Option<String>, String> {
