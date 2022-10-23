@@ -7,37 +7,6 @@
 //! into your functions. Climb will also generate help menus for your
 //! application and commands.
 //!
-//! ```
-//! let _ = create_app!()
-//!     .name("cool_calc")
-//!     .desc("This app does some cool math")
-//!     .version("1.0.0")
-//!     .command(
-//!         Command::new(
-//!             "add",
-//!             "Add two numbers",
-//!             add_fn
-//!         )
-//!         .arg("number_a")
-//!         .arg("number_b")
-//!     )
-//!     .command(
-//!         Command::new(
-//!             "div",
-//!             "Divide two numbers",
-//!             div_fn
-//!         )
-//!         .arg("number_a")
-//!         .arg("number_b")
-//!         .option(
-//!             CommandOption::new(
-//!                 "round",
-//!                 "Round the result"
-//!             )
-//!         )
-//!     )
-//!     .run();
-//! ```
 //! ```text
 //! $ cool_calc
 //!
@@ -58,7 +27,7 @@
 //! ```
 //!
 //!
-//! For a walkthrough of this example application, check out the README on the
+//! For a walkthrough of how to create this example application, check out the README on the
 //! [Climb page on crates.io](https://crates.io/crates/climb).
 
 mod app;

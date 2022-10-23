@@ -139,11 +139,11 @@ It might look intimidating, but it's actually pretty simple. `FunctionInput` sto
 Let's start with making the function for the `add` command. Climb functions are guaranteed to have the correct number of arguments passed into them, so you can safely assume that there are the 2 arguments passed in. If you added any options to your command, only these valid options can ever be passed into your functions:
 
 ```rust
-fn add_fn(input: FunctionInput, options: FunctionOptions) -> FunctionResult {
-    let numA: i32 = input.get(0).unwrap().parse().unwrap();
-    let numB: i32 = input.get(1).unwrap().parse().unwrap();
+fn add_fn(input: FunctionInput, _: FunctionOptions) -> FunctionResult {
+    let num_a: i32 = input.get(0).unwrap().parse().unwrap();
+    let num_b: i32 = input.get(1).unwrap().parse().unwrap();
 
-    let result = numA + numB;
+    let result = num_a + num_b;
 
     println!("{}", result);
 
@@ -157,10 +157,10 @@ For the `div` function:
 
 ```rust
 fn div_fn(input: FunctionInput, options: FunctionOptions) -> FunctionResult {
-    let numA: f32 = input.get(0).unwrap().parse().unwrap();
-    let numB: f32 = input.get(1).unwrap().parse().unwrap();
+    let num_a: f32 = input.get(0).unwrap().parse().unwrap();
+    let num_b: f32 = input.get(1).unwrap().parse().unwrap();
 
-    let mut result = numA / numB;
+    let mut result = num_a / num_b;
 
     if options.contains(&FunctionOption(String::from("--round"), None)) {
         result = result.round();

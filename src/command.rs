@@ -13,14 +13,14 @@ use crate::types::*;
 /// Creating a command option and assigning it an alias and argument:
 ///
 /// ```
+/// use climb::CommandOption;
+///
 /// let my_option = CommandOption::new(
 ///     "delete-folder",
 ///     "This option tells the command you want to delete a folder"
 /// )
-///
-/// my_option.alias("d");
-///
-/// my_option.arg("folder_name")
+/// .alias("d")
+/// .arg("folder_name");
 /// ```
 ///
 /// This option can be used with the command like this:
@@ -55,10 +55,12 @@ impl CommandOption {
     /// `--recursive` option in the command line:
     ///
     /// ```
+    /// use climb::CommandOption;
+    ///
     /// let my_option = CommandOption::new(
     ///     "recursive",
     ///     "This option lets the command behave recursively"
-    /// )
+    /// );
     /// ```
     pub fn new(alias_long: &str, desc: &str) -> Self {
         if alias_long.len() <= 1 {
@@ -94,12 +96,13 @@ impl CommandOption {
     /// be called using `--recursive` or `-r`:
     ///
     /// ```
+    /// use climb::CommandOption;
+    ///
     /// let my_option = CommandOption::new(
     ///     "recursive",
     ///     "This option lets the command behave recursively"
     /// )
-    ///
-    /// my_option.alias("r");
+    /// .alias("r");
     /// ```
     pub fn alias(mut self, alias: &str) -> Self {
         if alias.len() != 1 {
@@ -131,12 +134,13 @@ impl CommandOption {
     /// \[command_name\] --delete-folder <folder_name> ...
     ///
     /// ```
+    /// use climb::CommandOption;
+    ///
     /// let my_option = CommandOption::new(
     ///     "delete-folder",
     ///     "This tells the command you want to delete a folder"
     /// )
-    ///
-    /// my_option.arg("folder_name");
+    /// .arg("folder_name");
     /// ```
     pub fn arg(mut self, argument_name: &str) -> Self {
         self.argument = Some(argument_name.to_uppercase());
@@ -160,25 +164,27 @@ impl CommandOption {
 /// an application:
 ///
 /// ```
+/// use climb::*;
+///
 /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
 ///     println!("my example function");
+///     Ok(None)
 /// }
 ///
-/// let my_command: Command::new(
+/// let my_command = Command::new(
 ///     "cmd_name",
 ///     "cmd_desc",
 ///     example_cmd_fn
-/// );
-///
-/// my_command.alias("c");
-/// my_command.option(CommandOption::new(
+/// )
+/// .alias("c")
+/// .option(CommandOption::new(
 ///     "option_name",
 ///     "option_desc"
-/// ));
-/// my_command.arg("arg1");
-/// my_command.arg("arg2");
+/// ))
+/// .arg("arg1")
+/// .arg("arg2");
 ///
-/// let my_app: App = create_app!()
+/// let my_app = create_app!()
 ///     .command(my_command);
 /// ```
 pub struct Command {
@@ -205,11 +211,14 @@ impl Command {
     /// Construct a new command:
     ///
     /// ```
+    /// use climb::*;
+    ///
     /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
     ///     println!("my example function");
+    ///     Ok(None)
     /// }
     ///
-    /// let my_command: Command::new(
+    /// let my_command = Command::new(
     ///     "cmd_name",
     ///     "cmd_desc",
     ///     example_cmd_fn
@@ -248,17 +257,19 @@ impl Command {
     /// Construct a new command and assign a new alias `c`:
     ///
     /// ```
+    /// use climb::*;
+    ///
     /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
     ///     println!("my example function");
+    ///     Ok(None)
     /// }
     ///
-    /// let my_command: Command::new(
+    /// let my_command = Command::new(
     ///     "cmd_name",
     ///     "cmd_desc",
     ///     example_cmd_fn
-    /// );
-    ///
-    /// my_command.alias("c");
+    /// )
+    /// .alias("c");
     /// ```
     ///
     /// The command can now be called using either `cmd_name` or `c`.
@@ -287,17 +298,19 @@ impl Command {
     /// Construct a command and add an option:
     ///
     /// ```
+    /// use climb::*;
+    ///
     /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
     ///     println!("my example function");
+    ///     Ok(None)
     /// }
     ///
-    /// let my_command: Command::new(
+    /// let my_command = Command::new(
     ///     "cmd_name",
     ///     "cmd_desc",
     ///     example_cmd_fn
-    /// );
-    ///
-    /// my_command.option(CommandOption::new(
+    /// )
+    /// .option(CommandOption::new(
     ///     "option_name",
     ///     "option_desc"
     /// ));
@@ -323,17 +336,19 @@ impl Command {
     /// Construct a new command and add an argument to it:
     ///
     /// ```
+    /// use climb::*;
+    ///
     /// fn example_cmd_fn(_: FunctionInput, _: FunctionOptions) -> FunctionResult {
     ///     println!("my example function");
+    ///     Ok(None)
     /// }
     ///
-    /// let my_command: Command::new(
+    /// let my_command = Command::new(
     ///     "cmd_name",
     ///     "cmd_desc",
     ///     example_cmd_fn
-    /// );
-    ///
-    /// my_command.arg("arg1");
+    /// )
+    /// .arg("arg1");
     /// ```
     ///
     /// The command can be called using:
