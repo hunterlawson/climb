@@ -1,7 +1,14 @@
 mod app;
 mod command;
+mod types;
+mod help;
 
-pub use app::ClimbApp;
+pub use app::App;
 pub use command::*;
+pub use types::*;
 
-pub use maplit::hashset;
+// #[cfg(test)]
+// mod tests {
+//     #[test]
+    
+// }

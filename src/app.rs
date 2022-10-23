@@ -1,263 +1,226 @@
-use std::{collections::HashMap, ops::Add};
+use std::env;
 
-use crate::command::*;
+use crate::command::{Command, CommandOption};
+use crate::help::*;
+use crate::types::*;
 
-pub struct ClimbApp<'a> {
-    command_table: HashMap<&'a str, Command<'a>>,
-    default_command: Command<'a>,
-    app_name: &'a str,
+pub struct App {
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) version: String,
+    pub(crate) commands: Vec<Command>,
+    pub(crate) options: Vec<CommandOption>,
 }
 
-impl<'a> ClimbApp<'a> {
-    // Create a new application
-    pub fn new(
-        app_name: &'a str,
-        mut default_command: Command<'a>,
-    ) -> Result<ClimbApp<'a>, String> {
-        ClimbApp::validate_command_struct(&mut default_command)?;
-        let app = ClimbApp {
-            command_table: HashMap::<&'a str, Command<'a>>::new(),
-            default_command,
-            app_name,
-        };
+// Macro to create an app and initialize it with the current crate information:
+// name, description, version
+#[macro_export]
+macro_rules! create_app {
+    () => {
+        App::new()
+            .name(option_env!("CARGO_PKG_NAME").unwrap_or("unnamed_app"))
+            .description(option_env!("CARGO_PKG_DESCRIPTION").unwrap_or("default_description"))
+            .version(option_env!("CARGO_PKG_VERSION").unwrap_or("0.0.0"))
+    };
+}
 
-        Ok(app)
+impl App {
+    // App constructor
+    // Use the create_app! macro instead to construct and return an app with values for the
+    // name, description, and version taken from the crate's Cargo.toml file
+    pub fn new() -> Self {
+        // Implicit functions: help, version
+        let options = vec![
+            CommandOption::new("help", "Print help information").alias("h"),
+            CommandOption::new("version", "Print version").alias("v"),
+        ];
+
+        App {
+            name: String::new(),
+            description: String::new(),
+            version: String::new(),
+            commands: vec![],
+            options,
+        }
     }
 
-    // Add a command to the application
-    pub fn add_command(&mut self, mut command: Command<'a>) -> Result<&ClimbApp, String> {
-        ClimbApp::validate_command_struct(&mut command)?;
-
-        // Add the command to the command table
-        self.command_table.insert(command.alias, command);
-
-        Ok(self)
+    // Set the name of the app
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = String::from(name);
+        self
     }
 
-    // Validate command settings, return nothing on success
-    fn validate_command_struct(command: &mut Command<'a>) -> Result<(), String> {
-        // Validate the option strings
-        for option in &command.options {
-            if !option
-                .chars()
-                .all(|c| c.is_alphabetic() || c == '?' || c == '-')
-            {
-                return Err(format!(
-                    "Invalid option string given for command {}",
-                    command.name
-                ));
-            }
-        }
-
-        // Validate the alias string
-        if !command.alias.chars().all(|c| c.is_alphabetic()) {
-            return Err(format!(
-                "Invalid alias string given for command {}",
-                command.name
-            ));
-        }
-
-        // Validate input names, option descriptions
-        if command.num_inputs != command.input_names.len() {
-            return Err(format!(
-                "num_inputs and size of input_names do not match for command {}",
-                command.name
-            ));
-        }
-
-        if command.options.len() != command.option_descriptions.len() {
-            return Err(format!(
-                "The number of options and number of option descriptions do not match for command {}",
-                command.name
-            ));
-        }
-
-        // Add `--help` to the command options
-        command.options.push("-help");
-        command.option_descriptions.push("Show this help menu");
-
-        Ok(())
+    // Set the description of the app
+    pub fn description(mut self, desc: &str) -> Self {
+        self.description = String::from(desc);
+        self
     }
 
-    // Run the application and handle any errors
-    pub fn run(&self, args: Vec<String>) -> Result<(), String> {
-        let result = self.run_command(args);
-
-        match result {
-            Ok(r) => match r {
-                Some(s) => println!("{}", s),
-                None => (),
-            },
-            Err(e) => println!("Error: {} \n\tTry using `--help`", e),
-        }
-
-        Ok(())
+    // Set the version of the app
+    pub fn version(mut self, version: &str) -> Self {
+        self.version = String::from(version);
+        self
     }
 
-    // Run the command and propagate any errorst that occur to the run function
-    fn run_command(&self, args: Vec<String>) -> CommandResult {
+    // Add a command to the app
+    pub fn command(mut self, command: Command) -> Self {
+        self.commands.push(command);
+        self
+    }
+
+    // Collects arguments from the command line, parses them, and runs the correct function
+    // If any errors occur unrelated to the function, this function prints the help menu and the error
+    // Otherwise, this function returns the result of the executed command
+    pub fn run(&self) -> Result<Option<String>, String> {
+        self.run_custom(env::args().collect())
+    }
+
+    // Same as `run`, but supports input of custom arguments
+    pub fn run_custom(&self, args: Vec<String>) -> Result<Option<String>, String> {
+        // Print help if there are no arguments
         if args.len() <= 1 {
-            self.print_help(HelpPrintMode::PrintApp);
+            print_help_app(self, None);
             return Ok(None);
         }
 
-        // Check if executing a command or a default option
-        let first_arg = match args.get(1) {
-            Some(arg) => arg,
-            None => return Err(format!("There has been an error parsing the arguments",)),
+        // If the first argument is an option, then we are not running a command
+        // Check if the option is help or version
+        let first_arg = args.get(1).unwrap();
+        if first_arg.starts_with("-") {
+            match first_arg.as_str() {
+                "-h" | "--help" => print_help_app(self, None),
+                "-v" | "--version" => print_version(self),
+                x => print_help_app(
+                    self,
+                    Some(format!("The given option does not exist: `{}`", x)),
+                ),
+            }
+            return Ok(None);
+        }
+
+        // Otherwise, the first argument is a command
+        // Get the command if it exists, else print a help screen
+        let alias = args.get(1).unwrap();
+        let command = match self.lookup_command(alias) {
+            Some(c) => c,
+            None => {
+                print_help_app(
+                    self,
+                    Some(format!("The given command does not exist: `{}`", alias)),
+                );
+                return Ok(None);
+            }
         };
 
-        // Default command
-        if let Some('-') = first_arg.chars().nth(0) {
-            let args = args.into_iter().skip(1).collect();
-            match self.parse_args(args, &self.default_command)? {
-                Some(parsed_input) => return self.default_command._run_command(parsed_input),
-                None => return Ok(None),
+        // Parse the arguments and pass them into the command to be executed
+        let (input, options) = match self.parse_args(command, args) {
+            Ok(Some((i, o))) => (i, o),
+            Ok(None) => return Ok(None),
+            Err(e) => {
+                print_help_command(self, command, Some(e));
+                return Ok(None);
             }
-        }
+        };
 
-        // Check if the given command exists
-        if let Some(command) = self.command_table.get(first_arg.as_str()) {
-            // Run the command
-            let args = args.into_iter().skip(2).collect();
-            match self.parse_args(args, &command)? {
-                Some(parsed_input) => return command._run_command(parsed_input),
-                None => return Ok(None),
-            }
-        } else {
-            return Err(format!("The given command does not exist: `{}`", first_arg));
-        }
+        // Run the command function
+        let function = command.function;
+        function(input, options)
     }
 
     fn parse_args(
         &self,
-        args: Vec<String>,
         command: &Command,
-    ) -> Result<Option<(CommandInput, CommandOptions)>, String> {
-        let mut command_input = Vec::<String>::new();
-        let mut command_options = Vec::<CommandOption>::new();
+        args: Vec<String>,
+    ) -> Result<Option<(FunctionInput, FunctionOptions)>, String> {
+        let mut inputs = Vec::<String>::new();
+        let mut options = Vec::<FunctionOption>::new();
 
-        let mut contains_help = false;
-        let mut it = args.into_iter();
-        while let Some(mut arg) = it.next() {
-            // Check if the arg is an option
+        // Create an iterator over the arguments and skip the first two elements
+        // (exe name, function name)
+        let mut it = args.iter().skip(2);
+
+        // Parse the arguments
+        while let Some(arg) = it.next() {
+            // `arg` is an option
             if arg.chars().nth(0).unwrap() == '-' {
-                if arg.as_str() == "--help" {
-                    if contains_help {
-                        return Err(format!("Multiple uses of the option `--help`"));
+                // Check if the option is `-h` or `--help`
+                match arg.as_str() {
+                    "-h" | "--help" => {
+                        print_help_command(self, command, None);
+                        return Ok(None);
                     }
-                    contains_help = true;
-                    continue;
+                    _ => (),
                 }
-                arg.remove(0);
-                // Normal option
-                if command.options.contains(&arg.as_str()) {
-                    command_options.push(CommandOption(arg, None));
-                } else if command.options.contains(&arg.clone().add("?").as_str()) {
-                    // Get the next argument as input
-                    if let Some(next_arg) = it.next() {
-                        // If the next argument is an option, return error message
-                        if next_arg.chars().nth(0).unwrap() != '-' {
-                            command_options.push(CommandOption(arg, Some(next_arg)));
-                        } else {
-                            return Err(format!("No argument provided for option `{}`", arg));
+
+                // Check if the given option exists for the function
+                let option = match command.has_option(arg) {
+                    Some(o) => o,
+                    None => return Err(format!("Given option does not exist: `{}`", arg)),
+                };
+
+                // If the option takes an argument, get it and continue
+                if let Some(option_name) = &option.argument {
+                    let next_arg = match it.next() {
+                        Some(a) => a,
+                        None => {
+                            return Err(format!(
+                                "{} not provided for option: `{}`",
+                                option_name, arg
+                            ))
                         }
-                    } else {
-                        // If there isn't another argument, return error message
-                        return Err(format!("No argument provided for option `{}`", arg));
+                    };
+
+                    // If the argument is another option, return error
+                    if next_arg.chars().nth(0).unwrap() == '-' {
+                        return Err(format!(
+                            "{} not provided for option: `{}`",
+                            option_name, arg
+                        ));
                     }
+
+                    options.push(FunctionOption(
+                        option.alias_long.clone(),
+                        Some(next_arg.clone()),
+                    ));
                 } else {
-                    // The option doest exist, return error message
-                    return Err(format!("Invalid option `{}`", arg));
+                    options.push(FunctionOption(option.alias_long.clone(), None::<String>));
                 }
             } else {
-                // If the argument isnt an option, then it is input text
-                command_input.push(arg);
+                // `arg` is a command argument
+                // Check if the command takes an argument
+                inputs.push(arg.clone());
             }
         }
 
-        // Print the help menu and don't run the function
-        if contains_help {
-            if *command == self.default_command {
-                self.print_help(HelpPrintMode::PrintApp);
+        if inputs.len() != command.arguments.len() {
+            return Err(format!(
+                "Incorrect amount of arguments provided for command: {}",
+                &command.alias_long
+            ));
+        }
+        if options.len() > command.options.len() {
+            return Err(format!(
+                "Too many options provided for command: {}",
+                &command.alias_long
+            ));
+        }
+
+        Ok(Some((inputs, options)))
+    }
+
+    fn lookup_command(&self, alias: &String) -> Option<&Command> {
+        for command in &self.commands {
+            let equals_alias_short = if let Some(alias_short) = &command.alias_short {
+                *alias_short == *alias
             } else {
-                self.print_help(HelpPrintMode::PrintCommand(command));
+                false
+            };
+
+            if *command.alias_long == *alias || equals_alias_short {
+                return Some(command);
             }
-            return Ok(None);
         }
 
-        let command_input_option = match command_input.len() {
-            x if x == command.num_inputs && command.num_inputs != 0 => Some(command_input),
-            x if x < command.num_inputs => {
-                return Err(format!("Not enough amount of arguments provided"))
-            }
-            x if x > command.num_inputs => return Err(format!("Too many arguments provided")),
-            _ => None,
-        };
-
-        let command_options_option = match command_options.len() {
-            0 => None,
-            _ => Some(command_options),
-        };
-
-        Ok(Some((command_input_option, command_options_option)))
+        None
     }
-
-    fn print_help(&self, mode: HelpPrintMode) {
-        println!(" --------- {} ---------", self.app_name);
-        // Print the application's help menu
-        match mode {
-            HelpPrintMode::PrintApp => {
-                println!("OPTIONS");
-                for option in &self.default_command.options {
-                    println!("\t-{}", option);
-                }
-                println!("COMMANDS");
-                for (_, command) in &self.command_table {
-                    println!("\t{}", self.format_print_command(command));
-                }
-            }
-            HelpPrintMode::PrintCommand(command) => {
-                println!("{}", command.name.to_uppercase());
-                println!("\t{}\n", self.format_print_command(command));
-                println!("\t{}", command.description);
-                println!("OPTIONS");
-                for (i, option_name) in command.options.iter().enumerate() {
-                    let option_desc = command.option_descriptions.get(i).unwrap();
-                    let mut option_help = String::new();
-                    if option_name.chars().last().unwrap() == '?' {
-                        let mut option_name_new = option_name.chars();
-                        option_name_new.next_back();
-                        option_help.push_str(
-                            format!("\t-{}", option_name_new.collect::<String>()).as_str(),
-                        );
-                        option_help.push_str(format!(" <INPUT>").as_str());
-                    } else {
-                        option_help.push_str(format!("\t-{}", option_name).as_str());
-                    }
-
-                    option_help.push_str(format!("\t{}", option_desc).as_str());
-                    println!("{}", option_help);
-                }
-            }
-        }
-    }
-
-    fn format_print_command(&self, command: &Command) -> String {
-        let mut answer = String::new();
-        answer.push_str(command.alias);
-        if command.options.len() >= 1 {
-            answer.push_str(" [OPTIONS]");
-        }
-        for input_name in &command.input_names {
-            answer.push_str(format!(" <{}>", input_name).as_str());
-        }
-
-        answer
-    }
-}
-
-enum HelpPrintMode<'a> {
-    PrintCommand(&'a Command<'a>),
-    PrintApp,
 }
