@@ -4,7 +4,7 @@ use crate::command::{Command, CommandOption};
 use crate::help::*;
 use crate::types::*;
 
-/// Holds the information about the application: commands, options, name, version, etc.
+/// Holds information about the application: commands, options, name, version, etc.
 pub struct App {
     pub(crate) name: String,
     pub(crate) description: String,
