@@ -1,6 +1,6 @@
 # climb
 
-![Build](https://github.com/hunterlawson/climb/actions/workflows/rust.yml/badge.svg)
+![Build](https://github.com/hunterlawson/climb/actions/workflows/tests.yml/badge.svg)
 ![Crate](https://img.shields.io/crates/v/climb)
 ![License](https://img.shields.io/crates/l/climb)
 
