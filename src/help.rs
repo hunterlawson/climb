@@ -6,7 +6,7 @@ use crate::{
 use colored::*;
 
 pub(crate) fn print_help_app(app: &App, error_msg: Option<String>) {
-    println!("{}\n", app.description);
+    println!("{}\n", app.desc);
 
     println!("USAGE:\n\t{} [OPTIONS] [COMMAND]", app.name);
 
@@ -86,7 +86,7 @@ fn format_option_str(option: &CommandOption) -> String {
 
     option_str.push_str(option.alias_long.as_str());
 
-    if let Some(argument_name) = &option.argument {
+    if let Some(argument_name) = &option.arg {
         option_str.push_str(format!(" <{}>", argument_name).as_str());
     }
 

@@ -33,7 +33,7 @@ use crate::types::*;
 pub struct CommandOption {
     pub(crate) alias_long: String,
     pub(crate) alias_short: Option<String>,
-    pub(crate) argument: Option<String>,
+    pub(crate) arg: Option<String>,
     pub(crate) description: String,
 }
 
@@ -75,7 +75,7 @@ impl CommandOption {
         CommandOption {
             alias_long: alias,
             alias_short: None,
-            argument: None,
+            arg: None,
             description: String::from(desc),
         }
     }
@@ -143,7 +143,7 @@ impl CommandOption {
     /// .arg("folder_name");
     /// ```
     pub fn arg(mut self, argument_name: &str) -> Self {
-        self.argument = Some(argument_name.to_uppercase());
+        self.arg = Some(argument_name.to_uppercase());
         self
     }
 }
