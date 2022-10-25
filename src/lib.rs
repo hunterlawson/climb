@@ -172,7 +172,6 @@ mod tests {
         assert!(res.unwrap().unwrap().starts_with("3.33"));
     }
 
-    
     #[test]
     fn app_functionality_div_option() {
         let add_cmd = Command::new("div", "Divide two numbers", div_fn)
