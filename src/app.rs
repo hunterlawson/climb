@@ -7,7 +7,7 @@ use crate::types::*;
 /// Holds information about the application: commands, options, name, version, etc.
 pub struct App {
     pub(crate) name: String,
-    pub(crate) description: String,
+    pub(crate) desc: String,
     pub(crate) version: String,
     pub(crate) commands: Vec<Command>,
     pub(crate) options: Vec<CommandOption>,
@@ -52,7 +52,7 @@ impl App {
 
         App {
             name: String::new(),
-            description: String::new(),
+            desc: String::new(),
             version: String::new(),
             commands: vec![],
             options,
@@ -100,7 +100,7 @@ impl App {
     ///     .desc("Super cool app that does a lot of stuff");
     /// ```
     pub fn desc(mut self, desc: &str) -> Self {
-        self.description = String::from(desc);
+        self.desc = String::from(desc);
         self
     }
 
@@ -281,7 +281,7 @@ impl App {
                 };
 
                 // If the option takes an argument, get it and continue
-                if let Some(option_name) = &option.argument {
+                if let Some(option_name) = &option.arg {
                     let next_arg = match it.next() {
                         Some(a) => a,
                         None => {
