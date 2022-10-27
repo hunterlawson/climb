@@ -4,7 +4,7 @@
 [![Crate](https://img.shields.io/crates/v/climb)](https://crates.io/crates/climb)
 [![License](https://img.shields.io/crates/l/climb)](https://github.com/hunterlawson/climb/blob/master/LICENSE)
 
-Climb is a simple Rust crate for creating CLI applications. Allows creating commands that accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and function.
+Climb is a simple Rust crate for creating CLI applications. Allows creating commands that accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and commands.
 
 Climb follows the [builder pattern](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html) for creating applications.
 
