@@ -1,4 +1,4 @@
-# climb
+# Climb
 
 [![Build](https://github.com/hunterlawson/climb/actions/workflows/tests.yml/badge.svg)](https://github.com/hunterlawson/climb/actions/workflows/tests.yml)
 [![Crate](https://img.shields.io/crates/v/climb)](https://crates.io/crates/climb)
@@ -8,7 +8,7 @@ Climb is a simple Rust crate for creating CLI applications. Allows creating comm
 
 Climb follows the [builder pattern](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html) for creating applications.
 
-- [climb](#climb)
+- [Climb](#climb)
 - [Example Application - Calculator](#example-application---calculator)
   - [Creating the application](#creating-the-application)
   - [Adding functionality with commands](#adding-functionality-with-commands)
