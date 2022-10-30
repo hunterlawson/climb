@@ -4,7 +4,7 @@
 [![Crate](https://img.shields.io/crates/v/climb)](https://crates.io/crates/climb)
 [![License](https://img.shields.io/crates/l/climb)](https://github.com/hunterlawson/climb/blob/master/LICENSE)
 
-Climb is a simple Rust crate for creating CLI applications. Allows creating commands that accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and function.
+Climb is a simple Rust crate for creating CLI applications. Allows creating commands that accept inputs, options, and optional inputs. Climb handles all input argument validation and parsing and guarantees that only the correct number of inputs and only valid options are passed into your commands. Climb will also generate help menus for your application and commands.
 
 Climb follows the [builder pattern](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html) for creating applications.
 
@@ -19,7 +19,7 @@ Climb follows the [builder pattern](https://doc.rust-lang.org/1.0.0/style/owners
 
 ## Creating the application
 
-Let's say you want to make a simple calculator application with two functions:
+Let's say you want to make a simple calculator application with two commands:
 
 * `add` - Takes in two numbers, adds them, and returns the result
 * `div` - Takes in two numbers, divides them, and returns the result
@@ -84,7 +84,7 @@ Climb created the application and added a few default options: `help` and `versi
 
 ## Adding functionality with commands
 
-To add the two commands to the function, you can use the `app::command` API. When you call the `app::command` function, you have to pass in a command struct. You can use `Command::new`:
+To add the two commands to the app, you can use the `app::command` API. When you call the `app::command` function, you have to pass in a command struct. You can use `Command::new`:
 
 ```rust
 let _ = create_app!()
@@ -120,7 +120,7 @@ let _ = create_app!()
 
 The `Command::new` function takes in the command name and description as arguments. It also takes in a function that will be called when the command is executed. We haven't created definitions for these functions yet; the next section describes how to create these functions.
 
-We're also using the `Command` API to add arguments and options to the commands. We've added two arguments to each command `number_a` and `number_b`. These will be the two numbers that the functions will operate on. We also added an option to the `div` command: `round`. If this option is added, the command should return a rounded result.
+We're also using the `Command` API to add arguments and options to the commands. We've added two arguments to each command `number_a` and `number_b`. These will be the two numbers that the commands will operate on. We also added an option to the `div` command: `round`. If this option is added, the command should return a rounded result.
 
 ## Creating and using functions in climb commands
 
@@ -178,7 +178,7 @@ fn div_fn(input: FunctionInput, options: FunctionOptions) -> FunctionResult {
 }
 ```
 
-Just like before, we can unwrap the first two inputs. The division result is stored in the `result` variable and is printed to the console. We also check if the `--round` option is passed into the function and round the result if it is. There are many ways of doing this, but this is just one example.
+Just like before, we can unwrap the first two inputs. The division result is stored in the `result` variable and is printed to the console. We also check if the `--round` option is passed into the command and round the result if it is. There are many ways of doing this, but this is just one example.
 
 ## Using the application
 
