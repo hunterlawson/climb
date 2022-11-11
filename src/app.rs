@@ -222,15 +222,12 @@ impl App {
         // Otherwise, the first argument is a command
         // Get the command if it exists, else print a help screen
         let alias = args.get(1).unwrap();
-        let command = match self.lookup_command(alias) {
-            Some(c) => c,
-            None => {
-                print_help_app(
-                    self,
-                    Some(format!("The given command does not exist: `{}`", alias)),
-                );
-                return Ok(None);
-            }
+        let Some(command) = self.lookup_command(alias) else {
+            print_help_app(
+                self,
+                Some(format!("The given command does not exist: `{}`", alias)),
+            );
+            return Ok(None);
         };
 
         // Parse the arguments and pass them into the command to be executed
@@ -275,21 +272,17 @@ impl App {
                 }
 
                 // Check if the given option exists for the function
-                let option = match command.has_option(arg) {
-                    Some(o) => o,
-                    None => return Err(format!("Given option does not exist: `{}`", arg)),
+                let Some(option) = command.has_option(arg) else {
+                    return Err(format!("Given option does not exist: `{}`", arg));
                 };
 
                 // If the option takes an argument, get it and continue
                 if let Some(option_name) = &option.arg {
-                    let next_arg = match it.next() {
-                        Some(a) => a,
-                        None => {
-                            return Err(format!(
-                                "{} not provided for option: `{}`",
-                                option_name, arg
-                            ))
-                        }
+                    let Some(next_arg) = it.next() else {
+                        return Err(format!(
+                            "{} not provided for option: `{}`",
+                            option_name, arg
+                        ));
                     };
 
                     // If the argument is another option, return error
@@ -334,7 +327,7 @@ impl App {
     // given its short or long alias
     fn lookup_command(&self, alias: &String) -> Option<&Command> {
         for command in &self.commands {
-            let equals_alias_short = if let Some(alias_short) = &command.alias_short {
+            let Some(equals_alias_short) = if let Some(alias_short) = &command.alias_short {
                 *alias_short == *alias
             } else {
                 false
