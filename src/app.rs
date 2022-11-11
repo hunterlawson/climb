@@ -327,7 +327,7 @@ impl App {
     // given its short or long alias
     fn lookup_command(&self, alias: &String) -> Option<&Command> {
         for command in &self.commands {
-            let Some(equals_alias_short) = if let Some(alias_short) = &command.alias_short {
+            let equals_alias_short = if let Some(alias_short) = &command.alias_short {
                 *alias_short == *alias
             } else {
                 false
