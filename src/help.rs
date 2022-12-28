@@ -84,7 +84,7 @@ fn format_option_str(option: &CommandOption) -> String {
         option_str.push_str("    ");
     }
 
-    option_str.push_str(option.alias_long.as_str());
+    option_str.push_str(format!(" {}", option.alias_long).as_str());
 
     if let Some(argument_name) = &option.arg {
         option_str.push_str(format!(" <{}>", argument_name).as_str());
@@ -100,7 +100,7 @@ fn format_command_str(command: &Command) -> String {
     command_str.push_str(&command.alias_long.to_string());
 
     if let Some(alias_short) = &command.alias_short {
-        command_str.push_str(alias_short);
+        command_str.push_str(format!(" {}", alias_short).as_str());
     }
 
     command_str = format!("{:<12}{}", command_str, &command.desc);
