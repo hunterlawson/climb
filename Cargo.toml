@@ -11,4 +11,6 @@ keywords = ["command", "line", "interface", "cli", "application"]
 categories = ["command-line-interface"]
 
 [dependencies]
+anyhow = "1.0.70"
 colored = "2.0.0"
+climb-proc = {path = "climb-proc"}
